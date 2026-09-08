@@ -1,0 +1,6 @@
+{
+  "name": "JARVIS AI",
+  "description": "Holographic voice and visual AI assistant featuring interactive 3D core, arc reactor HUD telemetry, real-time speech and smart autonomous skills.",
+  "requestFramePermissions": ["microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
