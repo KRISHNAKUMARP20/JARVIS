@@ -240,15 +240,11 @@ export default function App() {
       <Header color={currentColor} />
 
       {playBgm && (
-        <iframe 
-          width="560" 
-          height="315" 
-          src="https://www.youtube.com/embed/q2N4xXq3fCE?autoplay=1&vq=hd1080" 
-          title="YouTube video player" 
-          frameBorder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowFullScreen
-          className="fixed -top-[2000px] -left-[2000px] pointer-events-none opacity-0"
+        <audio 
+          autoPlay 
+          src="/rolex.mp3" 
+          className="hidden"
+          onEnded={() => setPlayBgm(false)}
         />
       )}
 
