@@ -107,8 +107,8 @@ export default function App() {
           else sfx.playHudTick();
         } else if (data.skill.name === 'phone_timer') {
           sfx.playConfirmation();
-        } else if (data.skill.name === 'play_tamil_bgm') {
-          setPlayBgm(true);
+        } else if (data.skill.name === 'easter_egg' && data.skill.details?.action === 'PLAY_BGM') {
+          sfx.playBgmFile();
         } else {
           sfx.playConfirmation();
         }
@@ -239,14 +239,6 @@ export default function App() {
       <ParticleOverlay color={currentColor} />
       <Header color={currentColor} />
 
-      {playBgm && (
-        <audio 
-          autoPlay 
-          src="/rolex.mp3" 
-          className="hidden"
-          onEnded={() => setPlayBgm(false)}
-        />
-      )}
 
       {phone.flashlightOn && (
         <div className="fixed inset-0 pointer-events-none z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(255,245,210,0.18)_0,transparent_65%)] animate-pulse" />

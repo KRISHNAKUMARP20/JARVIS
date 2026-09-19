@@ -13,6 +13,7 @@ class SoundSystem {
   private ambientOsc: OscillatorNode | null = null;
   private ambientGain: GainNode | null = null;
   private speechListeners: Set<(event: SpeechProgressEvent) => void> = new Set();
+  private bgmAudio: HTMLAudioElement | null = null;
 
   private initCtx() {
     if (!this.ctx && typeof window !== 'undefined') {
@@ -434,6 +435,31 @@ class SoundSystem {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       this.notifySpeechProgress({ text: '', charIndex: 0, isSpeaking: false });
+    }
+  }
+
+  // Play the downloaded Rolex BGM reliably
+  public playBgmFile() {
+    if (!this.soundEnabled || typeof window === 'undefined') return;
+
+    if (!this.bgmAudio) {
+      this.bgmAudio = new Audio('/rolex.mp3');
+    }
+    
+    this.bgmAudio.currentTime = 0;
+    this.bgmAudio.volume = 1.0;
+    
+    // Some browsers block play() without transient activation.
+    // We catch the promise rejection to avoid unhandled exceptions.
+    this.bgmAudio.play().catch((err) => {
+      console.warn('[SoundSystem] BGM playback blocked. The user must interact with the document first.', err);
+    });
+  }
+
+  public stopBgmFile() {
+    if (this.bgmAudio) {
+      this.bgmAudio.pause();
+      this.bgmAudio.currentTime = 0;
     }
   }
 }
