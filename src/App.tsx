@@ -3,14 +3,24 @@ import { AssistantState, ProtocolMode, PhoneState } from './types';
 import { Background } from './components/Layout/Background';
 import { JarvisOrb } from './components/Orb/JarvisOrb';
 import { HUDRings } from './components/HUD/HUDRings';
+import { TelemetryPanel } from './components/HUD/TelemetryPanel';
+import { RadarWidget } from './components/HUD/RadarWidget';
+import { AudioVisualizer } from './components/HUD/AudioVisualizer';
+import { Header } from './components/Layout/Header';
+import { ParticleOverlay } from './components/Layout/ParticleOverlay';
+import { DiagnosticsTerminal } from './components/HUD/DiagnosticsTerminal';
+import { ScanningLaser } from './components/Layout/ScanningLaser';
+import { AppDrawer } from './components/Phone/AppDrawer';
 import { sfx } from './audio/sfx';
 
 export default function App() {
   const [state, setState] = useState<AssistantState>('IDLE');
   const [protocol, setProtocol] = useState<ProtocolMode>('STANDBY');
   const [subtitle, setSubtitle] = useState('');
-  const [isPromptOpen, setIsPromptOpen] = useState(false);
   const [promptInput, setPromptInput] = useState("");
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isAppDrawerOpen, setIsAppDrawerOpen] = useState(false);
+  const [playBgm, setPlayBgm] = useState(false);
   
   // Phone Link State
   const [phone, setPhone] = useState<PhoneState>({
@@ -31,7 +41,17 @@ export default function App() {
     activeApp: null,
   });
 
-  const currentColor = '#ff1a40';
+  const getProtocolColor = (mode: ProtocolMode) => {
+    switch (mode) {
+      case 'ACTIVE': return '#ff1a40'; // Red
+      case 'STEALTH': return '#4ade80'; // Green
+      case 'OVERCLOCK': return '#ff8c00'; // Orange
+      case 'STANDBY':
+      default: return '#00bfff'; // Cyan Blue
+    }
+  };
+
+  const currentColor = getProtocolColor(protocol);
   const [pulseTrigger, setPulseTrigger] = useState(0);
 
   const triggerPlasmaPulse = (overrideColor?: string) => {
@@ -87,6 +107,8 @@ export default function App() {
           else sfx.playHudTick();
         } else if (data.skill.name === 'phone_timer') {
           sfx.playConfirmation();
+        } else if (data.skill.name === 'play_tamil_bgm') {
+          setPlayBgm(true);
         } else {
           sfx.playConfirmation();
         }
@@ -129,16 +151,15 @@ export default function App() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      // Ignore keydown if they are already typing in an input field
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
         return;
       }
       
       if (e.key === 'Enter') {
         e.preventDefault();
-        setIsPromptOpen(prev => !prev);
-      } else if (e.key === 'Escape') {
-        setIsPromptOpen(false);
+        // Focus the input box if they press Enter outside of it
+        const input = document.getElementById('jarvis-input');
+        if (input) input.focus();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -151,7 +172,6 @@ export default function App() {
       handleSendMessage(promptInput.trim());
       setPromptInput('');
     }
-    setIsPromptOpen(false);
   };
 
 
@@ -214,81 +234,115 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col justify-center items-center bg-[#090204] text-red-100 overflow-hidden select-none">
+    <div className="relative min-h-screen flex flex-col justify-center items-center bg-[#090204] text-cyan-100 overflow-hidden select-none animate-boot-sequence">
       <Background color={currentColor} pulseTrigger={pulseTrigger} />
+      <ParticleOverlay color={currentColor} />
+      <Header color={currentColor} />
+
+      {playBgm && (
+        <iframe 
+          width="560" 
+          height="315" 
+          src="https://www.youtube.com/embed/q2N4xXq3fCE?autoplay=1&vq=hd1080" 
+          title="YouTube video player" 
+          frameBorder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowFullScreen
+          className="fixed -top-[2000px] -left-[2000px] pointer-events-none opacity-0"
+        />
+      )}
 
       {phone.flashlightOn && (
         <div className="fixed inset-0 pointer-events-none z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(255,245,210,0.18)_0,transparent_65%)] animate-pulse" />
       )}
 
       <main className="relative z-10 w-full h-screen flex items-center justify-center">
+        <ScanningLaser color={currentColor} />
+        <DiagnosticsTerminal color={currentColor} />
+        <TelemetryPanel color={currentColor} />
+        <RadarWidget color={currentColor} />
         <div className="relative flex items-center justify-center w-full h-full">
           <HUDRings state={state} protocol={protocol} color={currentColor} />
           <JarvisOrb state={state} color={currentColor} onClick={handleOrbClick} />
         </div>
+        <AudioVisualizer color={currentColor} state={state} />
       </main>
+
+      <AppDrawer 
+        isOpen={isAppDrawerOpen} 
+        onClose={() => setIsAppDrawerOpen(false)} 
+        color={currentColor}
+        onLaunchApp={(appName) => {
+          handleSendMessage(`Opening ${appName} app...`);
+        }}
+      />
+
+      <div className="absolute top-8 left-8 z-50">
+        <button 
+          onClick={() => setIsAppDrawerOpen(true)}
+          className="w-12 h-12 bg-black/50 backdrop-blur-md rounded-2xl flex items-center justify-center border hover:scale-105 transition-transform"
+          style={{ borderColor: `${currentColor}40`, color: currentColor }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </button>
+      </div>
 
       {/* Subtitles if audio is broken */}
       {subtitle && (
         <div className="absolute bottom-24 left-0 right-0 flex justify-center z-40 pointer-events-none px-4">
-          <div className="bg-black/60 backdrop-blur-md text-red-200 border border-red-500/30 px-6 py-3 rounded-2xl text-xl font-rajdhani text-center max-w-2xl shadow-[0_0_20px_rgba(255,0,0,0.2)]">
+          <div className="bg-black/60 backdrop-blur-md text-cyan-200 border border-cyan-500/30 px-6 py-3 rounded-2xl text-xl font-rajdhani text-center max-w-2xl shadow-[0_0_20px_rgba(0,191,255,0.2)]">
             {subtitle}
           </div>
         </div>
-      )}
-
-      {/* Manual Override Button in case Enter key fails */}
-      <button 
-        onClick={() => setIsPromptOpen(true)}
-        className="absolute bottom-6 right-6 z-40 bg-red-950/40 border border-red-500/30 text-red-400 p-3 rounded-full hover:bg-red-900/60 hover:text-red-300 hover:shadow-[0_0_15px_rgba(255,0,0,0.4)] transition-all flex items-center justify-center group"
-        title="Open Command Terminal (Enter)"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 19h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z"></path>
-          <path d="M4 11h.01"></path>
-          <path d="M8 11h.01"></path>
-          <path d="M12 11h.01"></path>
-          <path d="M16 11h.01"></path>
-          <path d="M20 11h.01"></path>
-          <path d="M8 15h8"></path>
-        </svg>
-      </button>
-
-      {/* Holographic Input Modal */}
-      {isPromptOpen && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm transition-all duration-300">
+      )}      {/* Persistent Chat Input Box */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4 pointer-events-auto flex justify-center">
+        {!isChatOpen ? (
+          <button
+            onClick={() => setIsChatOpen(true)}
+            className="flex items-center justify-center w-14 h-14 rounded-full bg-black/60 backdrop-blur-md border hover:scale-110 transition-transform shadow-[0_0_15px_rgba(0,191,255,0.2)]"
+            style={{ borderColor: `${currentColor}66`, color: currentColor }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        ) : (
           <form 
             onSubmit={handlePromptSubmit} 
-            className="bg-[#0f0406] border border-red-500/50 p-8 rounded-2xl shadow-[0_0_40px_rgba(255,0,0,0.4)] w-full max-w-md transform scale-100 animate-in fade-in zoom-in-95 duration-200"
+            className="w-full bg-black/60 backdrop-blur-md border p-1.5 rounded-full shadow-[0_0_15px_rgba(0,191,255,0.2)] flex gap-2 items-center animate-in zoom-in-95 duration-200"
+            style={{ borderColor: `${currentColor}40` }}
           >
-            <h2 className="text-3xl font-rajdhani font-bold text-red-500 mb-2 tracking-wider">KK JARVIS</h2>
-            <p className="text-red-300/80 font-mono mb-6 text-sm">Type the Jarvis commands</p>
+            <button 
+              type="button"
+              onClick={() => setIsChatOpen(false)}
+              className="pl-4 opacity-70 hover:opacity-100 transition-opacity"
+              style={{ color: currentColor }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
             <input 
-              autoFocus
+              id="jarvis-input"
               type="text"
               value={promptInput}
               onChange={e => setPromptInput(e.target.value)}
-              className="w-full bg-red-950/20 border border-red-500/50 text-red-100 font-mono text-lg rounded-lg p-3 outline-none focus:border-red-400 focus:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all mb-6"
-              placeholder="_"
+              className="flex-1 bg-transparent border-none font-mono text-sm rounded-lg py-2 px-1 outline-none placeholder:text-cyan-900/60"
+              style={{ color: currentColor }}
+              placeholder="Type command..."
+              autoFocus
             />
-            <div className="flex justify-end space-x-4">
-              <button 
-                type="button" 
-                onClick={() => setIsPromptOpen(false)}
-                className="px-6 py-2 rounded-lg font-mono text-red-400/80 hover:bg-red-950/50 hover:text-red-300 transition-colors"
-              >
-                CANCEL
-              </button>
-              <button 
-                type="submit" 
-                className="px-6 py-2 rounded-lg font-mono bg-red-600/20 text-red-400 border border-red-500/50 hover:bg-red-600/40 hover:shadow-[0_0_15px_rgba(255,0,0,0.6)] transition-all"
-              >
-                EXECUTE
-              </button>
-            </div>
+            <button 
+              type="submit" 
+              className="px-4 py-1.5 mr-1 rounded-full font-rajdhani font-bold text-sm tracking-widest transition-all"
+              style={{ color: currentColor, borderColor: `${currentColor}66`, backgroundColor: `${currentColor}22` }}
+            >
+              SEND
+            </button>
           </form>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -50,7 +50,7 @@ export const HUDRings: React.FC<HUDRingsProps> = ({ state, protocol: _protocol, 
     >
       {/* Outer Rotating Segmented Ring */}
       <div
-        className="absolute w-[95vmin] h-[95vmin] rounded-full border border-red-500/25 animate-spin-slow transition-all duration-700"
+        className="absolute w-[95vmin] h-[95vmin] rounded-full border animate-spin-slow transition-all duration-700"
         style={{
           borderColor: `${color}35`,
           borderStyle: 'dashed',
@@ -96,7 +96,7 @@ export const HUDRings: React.FC<HUDRingsProps> = ({ state, protocol: _protocol, 
 
       {/* Counter Rotating Ring with Radial Markers */}
       <div
-        className="absolute w-[85vmin] h-[85vmin] rounded-full border-2 border-transparent border-t-red-400/50 border-b-red-400/50 animate-spin-reverse transition-all duration-500"
+        className="absolute w-[85vmin] h-[85vmin] rounded-full border-2 border-transparent animate-spin-reverse transition-all duration-500"
         style={{
           borderTopColor: `${color}80`,
           borderBottomColor: `${color}80`,
@@ -215,15 +215,15 @@ export const HUDRings: React.FC<HUDRingsProps> = ({ state, protocol: _protocol, 
       {isSpeaking && (
         <>
           <div
-            className="absolute w-[65vmin] h-[65vmin] rounded-full animate-shockwave pointer-events-none border-2 border-red-400 opacity-80"
+            className="absolute w-[65vmin] h-[65vmin] rounded-full animate-shockwave pointer-events-none border-2 opacity-80"
             style={{ borderColor: color, boxShadow: `0 0 15px ${color}` }}
           />
           <div
-            className="absolute w-[65vmin] h-[65vmin] rounded-full animate-shockwave pointer-events-none border border-red-300 opacity-60"
+            className="absolute w-[65vmin] h-[65vmin] rounded-full animate-shockwave pointer-events-none border opacity-60"
             style={{ borderColor: color, animationDelay: '0.45s', boxShadow: `0 0 10px ${color}` }}
           />
           <div
-            className="absolute w-[65vmin] h-[65vmin] rounded-full animate-shockwave pointer-events-none border border-red-200 opacity-40"
+            className="absolute w-[65vmin] h-[65vmin] rounded-full animate-shockwave pointer-events-none border opacity-40"
             style={{ borderColor: color, animationDelay: '0.9s' }}
           />
           {/* Radial acoustic burst spikes */}
@@ -235,8 +235,8 @@ export const HUDRings: React.FC<HUDRingsProps> = ({ state, protocol: _protocol, 
       )}
 
       {/* Central Crosshair Lines */}
-      <div className="absolute w-[80vmin] h-[1px] bg-gradient-to-r from-transparent via-red-500/25 to-transparent pointer-events-none" />
-      <div className="absolute h-[80vmin] w-[1px] bg-gradient-to-b from-transparent via-red-500/25 to-transparent pointer-events-none" />
+      <div className="absolute w-[80vmin] h-[1px] pointer-events-none" style={{ background: `linear-gradient(90deg, transparent, ${color}40, transparent)` }} />
+      <div className="absolute h-[80vmin] w-[1px] pointer-events-none" style={{ background: `linear-gradient(180deg, transparent, ${color}40, transparent)` }} />
     </div>
   );
 };

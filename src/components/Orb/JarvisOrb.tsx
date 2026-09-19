@@ -540,17 +540,17 @@ export const JarvisOrb: React.FC<JarvisOrbProps> = ({
       arcGeo.attributes.position.needsUpdate = true;
 
       // 2. Dual Concentric Energy Shockwave Wave Ring Expansion
-      const shockwaveCycle = (elapsedTime * (isSpeaking ? 2.8 : 0.85) + surgeEnergy * 2.0) % 1.0;
-      const shockScale = 1.0 + shockwaveCycle * (isSpeaking ? 4.8 : 4.0);
+      const shockwaveCycle = (elapsedTime * (isSpeaking ? 4.5 : 0.85) + surgeEnergy * 2.0) % 1.0;
+      const shockScale = 1.0 + shockwaveCycle * (isSpeaking ? 7.0 : 4.0);
       shockwaveMesh.scale.set(shockScale, shockScale, shockScale);
-      shockwaveMat.opacity = Math.max(0, (1 - shockwaveCycle) * (isSpeaking ? 0.9 : 0.65) + surgeEnergy * 0.45);
-      shockwaveMesh.rotation.z += isSpeaking ? 0.02 : 0.006;
+      shockwaveMat.opacity = Math.max(0, (1 - shockwaveCycle) * (isSpeaking ? 1.0 : 0.65) + surgeEnergy * 0.45);
+      shockwaveMesh.rotation.z += isSpeaking ? 0.04 : 0.006;
 
-      const shockwaveCycle2 = ((elapsedTime * (isSpeaking ? 2.8 : 0.85) + surgeEnergy * 2.0) + 0.45) % 1.0;
-      const shockScale2 = 1.0 + shockwaveCycle2 * (isSpeaking ? 4.2 : 3.5);
+      const shockwaveCycle2 = ((elapsedTime * (isSpeaking ? 4.5 : 0.85) + surgeEnergy * 2.0) + 0.45) % 1.0;
+      const shockScale2 = 1.0 + shockwaveCycle2 * (isSpeaking ? 6.0 : 3.5);
       shockwaveMesh2.scale.set(shockScale2, shockScale2, shockScale2);
-      shockwave2Mat.opacity = Math.max(0, (1 - shockwaveCycle2) * (isSpeaking ? 0.75 : 0.45) + surgeEnergy * 0.35);
-      shockwaveMesh2.rotation.z -= isSpeaking ? 0.016 : 0.005;
+      shockwave2Mat.opacity = Math.max(0, (1 - shockwaveCycle2) * (isSpeaking ? 0.85 : 0.45) + surgeEnergy * 0.35);
+      shockwaveMesh2.rotation.z -= isSpeaking ? 0.03 : 0.005;
 
       // 3. Orbiting Energy Satellite Nodes
       const satPosArr = satelliteGeo.attributes.position.array as Float32Array;

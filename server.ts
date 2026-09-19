@@ -152,12 +152,16 @@ function handleSkillCommand(prompt: string): {
     };
   }
 
-  // 2. Text / SMS: "text pepper I'll be in the workshop", "send text to Rhodey: armor is ready"
-  if (p.includes("text ") || p.includes("send text") || p.includes("send message") || p.includes("sms ")) {
+  // 2. Text / SMS & WhatsApp: "whatsapp pepper I'll be in the workshop", "send text to Rhodey: armor is ready"
+  // Make sure to ignore "opening whatsapp app" so it can be handled by the app launcher
+  const isOpeningApp = p.includes("open") || p.includes("launch") || p.includes("play");
+  
+  if (!isOpeningApp && (p.includes("text ") || p.includes("send text") || p.includes("send message") || p.includes("sms ") || p.includes("whatsapp") || p.includes("chat"))) {
     let contact = "Pepper Potts";
     let messageText = "On my way to the workshop, Sir.";
+    let isWhatsapp = p.includes("whatsapp") || p.includes("chat");
 
-    const textMatch = p.match(/(?:send\s+(?:a\s+)?(?:text|message|sms)(?:\s+to)?|text|sms)\s+([a-zA-Z\s]+?)(?::|\s+saying|\s+that|\s+message)?\s+(.+)$/i);
+    const textMatch = p.match(/(?:send\s+(?:a\s+)?(?:text|message|sms|whatsapp)(?:\s+message)?(?:\s+to)?|text|sms|whatsapp|chat(?:\s+to)?)\s+([a-zA-Z\s]+?)(?::|\s+saying|\s+that|\s+message)?\s+(.+)$/i);
     if (textMatch && textMatch[1] && textMatch[2]) {
       contact = textMatch[1].trim();
       contact = contact.charAt(0).toUpperCase() + contact.slice(1);
@@ -170,6 +174,18 @@ function handleSkillCommand(prompt: string): {
         contact = contact.charAt(0).toUpperCase() + contact.slice(1);
       }
     }
+    
+    // Hardcoded phone numbers for reliable ADB intents
+    let parsedNumber = "+15550188000"; // fallback
+    if (contact.toLowerCase().includes("pepper")) {
+      parsedNumber = "+13105550142";
+    } else if (contact.toLowerCase().includes("rhodey")) {
+      parsedNumber = "+12025550198";
+    } else if (contact.toLowerCase().includes("tony")) {
+      parsedNumber = "+12125550100";
+    } else if (contact.toLowerCase().includes("friend")) {
+      parsedNumber = "+15551234567"; // dummy friend number
+    }
 
     phoneTelemetry.lastSms = {
       contact,
@@ -179,9 +195,11 @@ function handleSkillCommand(prompt: string): {
 
     return {
       executed: true,
-      skillName: "phone_message",
-      details: { action: "SEND_SMS", contact, text: messageText },
-      voiceNote: `Encrypted text message dispatched to ${contact}, Sir: "${messageText}".`,
+      skillName: isWhatsapp ? "phone_whatsapp" : "phone_message",
+      details: { action: isWhatsapp ? "SEND_WHATSAPP" : "SEND_SMS", contact, text: messageText, number: parsedNumber },
+      voiceNote: isWhatsapp 
+        ? `Drafting WhatsApp message to ${contact}, Sir: "${messageText}".`
+        : `Encrypted text message dispatched to ${contact}, Sir: "${messageText}".`,
     };
   }
 
@@ -340,8 +358,11 @@ function handleSkillCommand(prompt: string): {
     };
   }
   
-  if (p.includes("open ") || p.includes("launch ") || p.includes("play ")) {
-    let appTarget = p.replace(/^(jarvis\s+)?(please\s+)?(open|launch|play)\s+/i, "").replace(/[?.!]+$/, "").trim();
+  if (isOpeningApp) {
+    let appTarget = p.replace(/^(jarvis\s+)?(please\s+)?(opening|open|launching|launch|play)\s+/i, "")
+                     .replace(/\s+app.*$/i, "")
+                     .replace(/[?.!]+$/, "")
+                     .trim();
     
     // Map common names to packages
     const appMap: Record<string, string> = {
@@ -360,7 +381,8 @@ function handleSkillCommand(prompt: string): {
       "tiktok": "com.zhiliaoapp.musically",
       "settings": "com.android.settings",
       "gallery": "com.google.android.apps.photos",
-      "photos": "com.google.android.apps.photos"
+      "photos": "com.google.android.apps.photos",
+      "files": "com.google.android.documentsui"
     };
 
     // Try to find a direct match, or just use the target as a guess
@@ -511,7 +533,17 @@ function generateLocalJarvisResponse(prompt: string, skillResult: ReturnType<typ
     return `The current local time is ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, Sir. All time synchronizations are locked to atomic reference.`;
   }
   
-  return `Understood, Sir. Processing your request: "${prompt}". All local subsystems and holographic arrays are functioning within nominal safety parameters.`;
+  const professionalFallbacks = [
+    `I am currently analyzing your input, Sir: "${prompt}". My primary neural network is dedicated to your security and technical operations. Please specify if you require an application launch, a communications protocol, or a system diagnostic.`,
+    `I have logged your directive, Sir. While I run background analytics on "${prompt}", please let me know if you would like me to reroute power to any specific subsystem or initiate a phone connection.`,
+    `Understood, Sir. I am evaluating the optimal protocol for "${prompt}". All local subsystems, thermal sensors, and holographic arrays remain fully functional and standing by for your next command.`,
+    `Processing your query, Sir. My current parameters are focused on mobile hardware interfacing and atmospheric diagnostics. How would you like me to proceed with "${prompt}"?`,
+    `Acknowledged, Sir. The data regarding "${prompt}" has been stored in the secure core memory. I am at your disposal for any further engineering or tactical operations.`
+  ];
+  
+  // Pick a random professional response
+  const randomIndex = Math.floor(Math.random() * professionalFallbacks.length);
+  return professionalFallbacks[randomIndex];
 }
 
 // Resilient multi-model fallback list for handling high demand spikes (503)
@@ -720,6 +752,28 @@ Current Telemetry: Arc Reactor ${telemetry.reactorOutput}%, Core Temp ${telemetr
             const pkg = skillResult.details.package;
             // Use monkey to launch the main activity of any package
             await execAsync(`adb shell monkey -p ${pkg} -c android.intent.category.LAUNCHER 1`);
+          } else if (action === "SEND_WHATSAPP") {
+            const num = skillResult.details.number.replace(/[^0-9+]/g, '');
+            const msg = encodeURIComponent(skillResult.details.text);
+            
+            // Wake up phone and unlock (if not already)
+            await execAsync('adb shell input keyevent 224'); // WAKEUP
+            
+            // Launch WhatsApp specifically to the chat with the pre-filled text
+            await execAsync(`adb shell am start -a android.intent.action.VIEW -d "https://api.whatsapp.com/send?phone=${num}&text=${msg}"`);
+            
+            // Wait for WhatsApp to load and render the chat view
+            await delay(2500);
+            
+            // Press Tab (keyevent 61) a couple of times to focus send button, or try ENTER if it's auto-focused
+            // But often the send button requires specific coordinates. A safer fallback is D-PAD RIGHT (22) and ENTER (66)
+            // Some versions of WA auto-focus the input, so hitting enter might just add a newline.
+            // On most devices, TAB (61) twice then ENTER (66) hits the send button.
+            await execAsync('adb shell input keyevent 61'); // Tab
+            await delay(200);
+            await execAsync('adb shell input keyevent 61'); // Tab
+            await delay(200);
+            await execAsync('adb shell input keyevent 66'); // Enter / Send
           }
         } catch (err: any) {
           console.warn("ADB Execution Error (Is phone plugged in?):", err.message);

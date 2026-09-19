@@ -697,6 +697,16 @@ export const Background: React.FC<BackgroundProps> = ({ color = '#ff1a40', pulse
       {/* Particle & Grid Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
+      {/* Hexagonal Grid Overlay */}
+      <div 
+        className="absolute inset-0 opacity-15 pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='103.92304845413264' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 103.92304845413264 L0 86.60254037844386 L0 51.96152422706632 L30 34.64101615137754 L60 51.96152422706632 L60 86.60254037844386 Z M30 51.96152422706632 L0 34.64101615137754 L0 0 L30 -17.32050807568877 L60 0 L60 34.64101615137754 Z' stroke='${encodeURIComponent(color)}' stroke-width='1' fill='none' /%3E%3C/svg%3E")`,
+          backgroundSize: '60px 103.92px',
+          animation: 'scroll-bg 20s linear infinite'
+        }}
+      />
+
       {/* Holographic Scanline Overlay */}
       <div className="absolute inset-0 scanlines opacity-40 pointer-events-none" />
 
