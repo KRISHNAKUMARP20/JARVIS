@@ -92,8 +92,17 @@ function handleSkillCommand(prompt: string): {
 } {
   const p = prompt.toLowerCase().trim();
 
+  // --- EASTER EGGS ---
+  if (p === "hello" || p === "play bgm") {
+    return {
+      executed: true,
+      skillName: "easter_egg",
+      details: { action: "PLAY_BGM", track: "rolex" },
+      voiceNote: "Hello Sir. Queuing the Rolex BGM, as requested. Setting volume to maximum.",
+    };
+  }
+
   // --- PHONE CONTROL SKILLS ---
-  
   // 1. Phone Call: "call pepper", "dial rhodey", "call mom", "hang up", "end call"
   if (p.includes("hang up") || p.includes("end call") || p.includes("disconnect call") || p.includes("stop call")) {
     const prevContact = phoneTelemetry.activeCall?.contact || "Call";
