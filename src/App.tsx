@@ -109,6 +109,8 @@ export default function App() {
           sfx.playConfirmation();
         } else if (data.skill.name === 'easter_egg' && data.skill.details?.action === 'PLAY_BGM') {
           sfx.playBgmFile();
+        } else if (data.skill.name === 'easter_egg' && data.skill.details?.action === 'STOP_BGM') {
+          sfx.stopBgmFile();
         } else {
           sfx.playConfirmation();
         }

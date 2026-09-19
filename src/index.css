@@ -148,11 +148,11 @@
 }
 
 .animate-spin-slow {
-  animation: spin-slow 24s linear infinite;
+  animation: spin-slow 4s linear infinite;
 }
 
 .animate-spin-reverse {
-  animation: spin-reverse 32s linear infinite;
+  animation: spin-reverse 3s linear infinite;
 }
 
 .animate-pulse-ring {
@@ -160,7 +160,7 @@
 }
 
 .animate-radar {
-  animation: radar-sweep 4s linear infinite;
+  animation: radar-sweep 0.5s linear infinite;
 }
 
 .animate-shockwave {
@@ -168,7 +168,7 @@
 }
 
 .animate-glitch-glow {
-  animation: glitch-glow 3s ease-in-out infinite;
+  animation: glitch-glow 0.1s ease-in-out infinite;
 }
 
 /* Full-Screen Holographic Terminal Scanlines & Downward Sweep */
@@ -214,12 +214,12 @@
     rgba(0, 0, 0, 0.38) 50%
   );
   background-size: 100% 4px;
-  animation: scanline-scroll-down 3.5s linear infinite;
+  animation: scanline-scroll-down 0.2s linear infinite;
   will-change: background-position;
 }
 
 .holo-beam-sweep {
-  animation: holographic-beam-sweep 8s cubic-bezier(0.35, 0, 0.65, 1) infinite;
+  animation: holographic-beam-sweep 0.5s cubic-bezier(0.35, 0, 0.65, 1) infinite;
   will-change: transform, opacity;
 }
 
@@ -286,7 +286,7 @@
 }
 
 .holo-glitch-active {
-  animation: holo-glitch-jitter 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: holo-glitch-jitter 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   will-change: transform, filter, opacity;
 }
 
@@ -353,11 +353,11 @@
 }
 
 .animate-scan-vertical {
-  animation: scan-vertical 8s linear infinite;
+  animation: scan-vertical 1s linear infinite;
 }
 
 .animate-scan-horizontal {
-  animation: scan-horizontal 12s linear infinite;
+  animation: scan-horizontal 1.5s linear infinite;
 }
 
 @keyframes boot-sequence {
@@ -390,4 +390,54 @@
 .animate-fade-in {
   animation: fade-in 0.2s ease-out forwards;
 }
+
+@keyframes cinematic-pulse {
+  0% { transform: scale(0.95); opacity: 0.8; filter: drop-shadow(0 0 10px currentColor); }
+  50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 30px currentColor); }
+  100% { transform: scale(0.95); opacity: 0.8; filter: drop-shadow(0 0 10px currentColor); }
+}
+.animate-cinematic-pulse {
+  animation: cinematic-pulse 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes epic-3d-orbit {
+  0% { transform: perspective(1000px) rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  100% { transform: perspective(1000px) rotateX(360deg) rotateY(180deg) rotateZ(360deg); }
+}
+.animate-epic-3d-orbit {
+  animation: epic-3d-orbit 20s linear infinite;
+  transform-style: preserve-3d;
+}
+
+@keyframes hyper-blur-spin {
+  0% { transform: rotate(0deg) scale(0.8) skew(0deg); filter: blur(0px) brightness(100%); }
+  25% { transform: rotate(900deg) scale(1.5) skew(15deg); filter: blur(10px) brightness(300%) hue-rotate(90deg); }
+  50% { transform: rotate(1800deg) scale(0.5) skew(-15deg); filter: blur(2px) brightness(500%) hue-rotate(180deg); }
+  75% { transform: rotate(2700deg) scale(1.2) skew(10deg); filter: blur(8px) brightness(200%) hue-rotate(270deg); }
+  100% { transform: rotate(3600deg) scale(0.8) skew(0deg); filter: blur(0px) brightness(100%); }
+}
+
+.animate-hyper-blur-spin {
+  animation: hyper-blur-spin 0.2s linear infinite !important;
+}
+
+@keyframes blinding-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-blinding-flash {
+  animation: blinding-flash 0.05s steps(2, start) infinite !important;
+}
+
+
+@keyframes neon-trace {
+  0% { stroke-dashoffset: 1000; opacity: 0; }
+  50% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.animate-neon-trace {
+  animation: neon-trace 3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards infinite alternate;
+}
+
+
 

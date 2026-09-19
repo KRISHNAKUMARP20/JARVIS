@@ -93,12 +93,21 @@ function handleSkillCommand(prompt: string): {
   const p = prompt.toLowerCase().trim();
 
   // --- EASTER EGGS ---
-  if (p === "hello" || p === "play bgm") {
+  if (p.includes("play bgm") || p.includes("start bgm") || p.includes("play music") || p.includes("hello")) {
     return {
       executed: true,
       skillName: "easter_egg",
       details: { action: "PLAY_BGM", track: "rolex" },
-      voiceNote: "Hello Sir. Queuing the Rolex BGM, as requested. Setting volume to maximum.",
+      voiceNote: "Queuing the BGM, as requested. Setting volume to maximum.",
+    };
+  }
+
+  if (p.includes("stop bgm") || p.includes("stop music") || p.includes("pause bgm") || p.includes("pause music")) {
+    return {
+      executed: true,
+      skillName: "easter_egg",
+      details: { action: "STOP_BGM" },
+      voiceNote: "Stopping the background music, Sir.",
     };
   }
 

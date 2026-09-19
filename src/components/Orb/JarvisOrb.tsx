@@ -412,6 +412,7 @@ export const JarvisOrb: React.FC<JarvisOrbProps> = ({
     const handleClick = () => {
       triggerSurge();
       triggerChromaticBurstRef.current?.();
+      sfx.playActivationChime();
       window.dispatchEvent(
         new CustomEvent('jarvis-plasma-pulse', {
           detail: { color: colorRef.current },
@@ -741,7 +742,7 @@ export const JarvisOrb: React.FC<JarvisOrbProps> = ({
       <div className="absolute inset-2 sm:inset-4 pointer-events-none flex items-center justify-center">
         {/* Outer Rotating Segmented Compass Ring */}
         <svg
-          className="w-full h-full animate-[spin_60s_linear_infinite] opacity-40 group-hover:opacity-75 transition-opacity duration-500"
+          className="w-full h-full animate-hyper-blur-spin animate-blinding-flash opacity-40 group-hover:opacity-75 transition-opacity duration-500"
           viewBox="0 0 200 200"
         >
           <circle
@@ -771,7 +772,8 @@ export const JarvisOrb: React.FC<JarvisOrbProps> = ({
 
         {/* Counter-Rotating Inner Holographic Ring */}
         <svg
-          className="absolute inset-6 sm:inset-8 w-[calc(100%-3rem)] h-[calc(100%-3rem)] animate-[spin_40s_linear_infinite_reverse] opacity-25 group-hover:opacity-50 transition-opacity duration-500"
+          className="absolute inset-6 sm:inset-8 w-[calc(100%-3rem)] h-[calc(100%-3rem)] animate-hyper-blur-spin animate-blinding-flash opacity-25 group-hover:opacity-50 transition-opacity duration-500"
+          style={{ animationDirection: 'reverse' }}
           viewBox="0 0 160 160"
         >
           <circle

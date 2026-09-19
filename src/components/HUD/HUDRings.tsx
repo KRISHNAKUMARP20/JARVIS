@@ -50,11 +50,10 @@ export const HUDRings: React.FC<HUDRingsProps> = ({ state, protocol: _protocol, 
     >
       {/* Outer Rotating Segmented Ring */}
       <div
-        className="absolute w-[95vmin] h-[95vmin] rounded-full border animate-spin-slow transition-all duration-700"
+        className="absolute w-[95vmin] h-[95vmin] rounded-full border animate-hyper-blur-spin animate-blinding-flash"
         style={{
-          borderColor: `${color}35`,
+          borderColor: `${color}`,
           borderStyle: 'dashed',
-          animationDuration: isComputing ? '8s' : '36s',
         }}
       >
         {/* Cardinal Notches & Beacons */}
@@ -96,11 +95,11 @@ export const HUDRings: React.FC<HUDRingsProps> = ({ state, protocol: _protocol, 
 
       {/* Counter Rotating Ring with Radial Markers */}
       <div
-        className="absolute w-[85vmin] h-[85vmin] rounded-full border-2 border-transparent animate-spin-reverse transition-all duration-500"
+        className="absolute w-[85vmin] h-[85vmin] rounded-full border-2 border-transparent animate-hyper-blur-spin animate-blinding-flash"
         style={{
-          borderTopColor: `${color}80`,
-          borderBottomColor: `${color}80`,
-          animationDuration: isComputing ? '6s' : isListening ? '14s' : '28s',
+          borderTopColor: `${color}`,
+          borderBottomColor: `${color}`,
+          animationDirection: 'reverse'
         }}
       >
         {/* Orbiting Photon Beacons on inner track */}
